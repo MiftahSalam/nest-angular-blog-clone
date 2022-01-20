@@ -25,5 +25,11 @@ export = [
       entitiesDir: 'src',
       migrationsDir: 'src/migrations',
     },
+    ssl: process.env.NODE_ENV === 'production',
+    extra: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
   } as TypeOrmModuleOptions,
 ];
