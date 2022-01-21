@@ -15,7 +15,7 @@ export = [
       'dist/**/*.entity{.ts,.js}',
     ],
     synchronize: false,
-    logging: true,
+    logging: false,
     migrations: [
       join(__dirname, '..', 'migrations/*{.ts,.js}'),
       //   'src/migrations/**/*{.ts,.js}',
