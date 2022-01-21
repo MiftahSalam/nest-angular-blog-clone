@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { from, Observable, switchMap, of, tap } from 'rxjs';
 import { Output } from '../../core/output';
 import { Repository } from 'typeorm';
@@ -15,7 +20,7 @@ export class UserService {
   ) {}
 
   createUser(user: CreateUserDto): Observable<Output> {
-    console.log('User-Service-createUser');
+    // console.log('User-Service-createUser');
 
     return from(this.findUserByName(user.username)).pipe(
       switchMap((user: UserDto) => {
@@ -46,6 +51,7 @@ export class UserService {
       this.userService.findOne({ where: { username: username } }),
     ).pipe(
       switchMap((user: UserEntity) => {
+        if (!user) throw new NotFoundException('User not found');
         return from(user.toDto());
       }),
     );

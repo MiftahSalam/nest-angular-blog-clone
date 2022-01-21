@@ -8,6 +8,8 @@ import { UserDto } from '../dtos/user.dto';
 import { CreateUserDto } from '../dtos/create-user.dto';
 
 import ormconfig = require('../../config/ormconfig');
+import { catchError, of, pipe } from 'rxjs';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UserService', () => {
   let service: UserService;
@@ -68,8 +70,25 @@ describe('UserService', () => {
     });
   });
 
+  it('should be throw error user not found', (done: jest.DoneCallback) => {
+    service
+      .findUserByName('testUser.username')
+      .pipe()
+      .subscribe({
+        next: () => {
+          done.fail('User should not exist');
+        },
+        error: (err) => {
+          if (err instanceof NotFoundException) {
+            expect(err.message).toEqual('User not found');
+            done();
+          } else done.fail('Error is not NotFoundException');
+        },
+      });
+  });
+
   // it('should be create one user', (done: jest.DoneCallback) => {
-  //   const user = {
+  //   const user: CreateUserDto = {
   //     username: 'miftah-salam',
   //     password: '123456',
   //     email: 'salam.miftah@gmail.com',
