@@ -1,5 +1,1 @@
-export class Output {
-  status: string;
-  message: string;
-  data: any;
-}
+export class OutputDto {}
