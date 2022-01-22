@@ -6,11 +6,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { EntityCore } from 'src/core/entity';
-import { UserDto } from '../dtos/user.dto';
+// import { EntityCore } from 'src/core/entity';
+// import { UserDto } from '../dtos/user.dto';
 
 @Entity('users')
-export class UserEntity implements EntityCore<UserDto> {
+export class UserEntity {
+  // export class UserEntity implements EntityCore<UserDto> {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -31,6 +32,7 @@ export class UserEntity implements EntityCore<UserDto> {
   @Column({
     type: 'varchar',
     nullable: false,
+    select: false,
   })
   password: string;
 
@@ -53,14 +55,14 @@ export class UserEntity implements EntityCore<UserDto> {
     this.password = await bcrypt.hash(this.password, 10);
   }
 
-  toDto(): Promise<UserDto> {
-    const dto: UserDto = {
-      id: this.id,
-      username: this.username,
-      email: this.email,
-      fullname: this.fullname,
-      image_url: this.image_url,
-    };
-    return Promise.resolve(dto);
-  }
+  //   toDto(): Promise<UserDto> {
+  //     const dto: UserDto = {
+  //       id: this.id,
+  //       username: this.username,
+  //       email: this.email,
+  //       fullname: this.fullname,
+  //       image_url: this.image_url,
+  //     };
+  //     return Promise.resolve(dto);
+  //   }
 }
