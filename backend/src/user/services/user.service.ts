@@ -1,16 +1,13 @@
-import {
-  HttpException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { from, Observable, switchMap, of, tap } from 'rxjs';
-import { Output } from '../../core/output';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { from, Observable, switchMap, of, catchError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { UserDto } from '../dtos/user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  CreateUserPresenterImp,
+  CreateUserPresenterOutput,
+} from '../presenter/create-user.presenter';
 
 @Injectable()
 export class UserService {
@@ -19,45 +16,71 @@ export class UserService {
     private readonly userService: Repository<UserEntity>,
   ) {}
 
-  createUser(user: CreateUserDto): Observable<Output> {
+  createUser(user: CreateUserDto): Observable<CreateUserPresenterOutput> {
     // console.log('User-Service-createUser');
 
     return from(this.findUserByName(user.username)).pipe(
-      switchMap((user: UserDto) => {
-        console.log('User-Service-createUser user', user);
+      catchError((err) => {
+        // console.log(
+        //   'Caught exception while find user with exception message:',
+        //   err.message,
+        // );
+        return of(null);
+      }),
+      switchMap((userExisting: UserEntity) => {
+        // console.log('User-Service-createUser user', user);
+        const presenter: CreateUserPresenterImp = new CreateUserPresenterImp();
 
-        const out: Output = new Output();
-        out.status = 'Created';
-        out.message = 'User create';
-        out.data = {};
-
-        return of(out);
+        if (!userExisting) {
+          return from(this.userService.save(user)).pipe(
+            catchError((err) => {
+              console.log(
+                'Caught exception while create user with exception message:',
+                err.message,
+              );
+              return of(null);
+            }),
+            switchMap((userData: UserEntity) => {
+              if (userData) {
+                delete userData.password;
+                return from(
+                  presenter.present(
+                    HttpStatus.CREATED,
+                    'User Created',
+                    userData,
+                  ),
+                );
+              } else
+                return from(
+                  presenter.present(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    'An error happened while create user',
+                    {},
+                  ),
+                );
+            }),
+          );
+        } else
+          return from(
+            presenter.present(HttpStatus.BAD_REQUEST, 'User already exist', {}),
+          );
       }),
     );
-    // const out: Output = new Output;
-    // out.status = "Created";
-    // out.message = "User created";
-    // out.data = {};
-
-    // return out;
-  }
-  findUserById(id: string): Observable<UserDto> {
-    return from(this.userService.findOne(id));
   }
 
-  findUserByName(username: string): Observable<UserDto> {
+  findUserByName(username: string): Observable<UserEntity> {
     // console.log('User-Service-findUserByName username', username);
     return from(
       this.userService.findOne({ where: { username: username } }),
     ).pipe(
       switchMap((user: UserEntity) => {
         if (!user) throw new NotFoundException('User not found');
-        return from(user.toDto());
+        return of(user);
       }),
     );
   }
 
-  async findUserByNameAsync(username: string): Promise<UserDto> {
+  async findUserByNameAsync(username: string): Promise<UserEntity> {
     console.log('User-Service-findUserByName username', username);
 
     const user = await this.userService.findOne({
