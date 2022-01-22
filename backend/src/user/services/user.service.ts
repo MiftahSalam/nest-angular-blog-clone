@@ -1,4 +1,10 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { from, Observable, switchMap, of, catchError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -43,26 +49,15 @@ export class UserService {
                   message: 'User Created',
                   data: userData,
                 };
-              } else {
-                presenter = {
-                  status: HttpStatus.INTERNAL_SERVER_ERROR,
-                  message: 'An error happened while create user',
-                  data: {},
-                };
-              }
+              } else
+                throw new InternalServerErrorException(
+                  'An error happened while create user',
+                );
 
               return of(presenter);
             }),
           );
-        } else {
-          presenter = {
-            status: HttpStatus.BAD_REQUEST,
-            message: 'User already exist',
-            data: {},
-          };
-
-          return of(presenter);
-        }
+        } else throw new BadRequestException('User already exist');
       }),
     );
   }

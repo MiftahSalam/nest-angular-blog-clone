@@ -6,7 +6,11 @@ import { UserService } from './user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 
 import ormconfig = require('../../config/ormconfig');
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { PresenterOutput } from 'src/core/presenter';
 
 describe('UserService', () => {
@@ -108,6 +112,34 @@ describe('UserService', () => {
       error: (err) => {
         console.error('Test failed with error', err);
         done.fail('create user fail');
+      },
+    });
+  });
+
+  it('should be get error User already exist', (done: jest.DoneCallback) => {
+    service
+      .findUserByName('testUser.username')
+      .pipe()
+      .subscribe({
+        next: () => {
+          done.fail('User should not exist');
+        },
+        error: (err) => {
+          if (err instanceof NotFoundException) {
+            expect(err.message).toEqual('User not found');
+            done();
+          } else done.fail('Error is not NotFoundException');
+        },
+      });
+    service.createUser(testUser1).subscribe({
+      next: () => {
+        done.fail('User should not created');
+      },
+      error: (err) => {
+        if (err instanceof BadRequestException) {
+          expect(err.message).toEqual('User already exist');
+          done();
+        } else done.fail('Error is not BadRequestException');
       },
     });
   });
