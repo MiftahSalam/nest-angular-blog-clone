@@ -6,12 +6,20 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 
 import ormconfig = require('./config/ormconfig');
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './core/allexception.filter';
 
 // console.log(ormconfig);
 
 @Module({
   imports: [TypeOrmModule.forRoot(ormconfig[0]), AuthModule, UserModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {}
