@@ -1,18 +1,9 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { OutputDto } from 'src/core/output';
 
-export class UserDto {
-  @IsNotEmpty()
-  id?: string;
-
-  @IsNotEmpty()
+export class UserDto implements OutputDto {
   username: string;
-
-  @IsNotEmpty()
-  fullname: string;
-
-  image_url: string;
-
-  @IsNotEmpty()
-  @IsEmail()
   email: string;
+  fullname: string;
+  image_url: string;
+  id: string;
 }
