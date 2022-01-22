@@ -3,13 +3,15 @@ import { getConnectionToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { UserService } from './user.service';
-import { Output } from '../../core/output';
-import { UserDto } from '../dtos/user.dto';
 import { CreateUserDto } from '../dtos/create-user.dto';
+import { from } from 'rxjs';
 
 import ormconfig = require('../../config/ormconfig');
-import { catchError, of, pipe } from 'rxjs';
-import { NotFoundException } from '@nestjs/common';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  CreateUserPresenterImp,
+  CreateUserPresenterOutput,
+} from '../presenter/create-user.presenter';
 
 describe('UserService', () => {
   let service: UserService;
@@ -20,6 +22,13 @@ describe('UserService', () => {
     password: '123456',
     fullname: 'Test User',
     image_url: 'http://www.test.user',
+  };
+  let testUser1: CreateUserDto = {
+    username: 'test-user1',
+    email: 'test1@yahoo.com',
+    password: '123456',
+    fullname: 'Test User 1',
+    image_url: 'http://www.test.user1',
   };
 
   beforeAll(async () => {
@@ -58,9 +67,7 @@ describe('UserService', () => {
   // });
 
   it('should be get one user', (done: jest.DoneCallback) => {
-    service.findUserByName(testUser.username).subscribe((user: UserDto) => {
-      // console.log('Test-User-Service-findUserByName user', user);
-
+    service.findUserByName(testUser.username).subscribe((user: UserEntity) => {
       expect(user.username).toEqual(testUser.username);
       expect(user.email).toEqual(testUser.email);
       expect(user.fullname).toEqual(testUser.fullname);
@@ -87,19 +94,31 @@ describe('UserService', () => {
       });
   });
 
-  // it('should be create one user', (done: jest.DoneCallback) => {
-  //   const user: CreateUserDto = {
-  //     username: 'miftah-salam',
-  //     password: '123456',
-  //     email: 'salam.miftah@gmail.com',
-  //     fullname: 'Miftah Salam',
-  //     image_url: 'https://www.test.com',
-  //   };
-  //   service.createUser(user).subscribe((out: Output) => {
-  //     console.log('Test-User-Service-createUser out', out);
-  //     done();
-  //   });
-  // });
+  it('should be create one user', (done: jest.DoneCallback) => {
+    service.createUser(testUser1).subscribe({
+      next: (out: CreateUserPresenterOutput) => {
+        const presenter: CreateUserPresenterImp = new CreateUserPresenterImp();
+        const testUser1ExcPass = testUser1;
+        delete testUser1ExcPass.password;
+        from(
+          presenter.present(
+            HttpStatus.CREATED,
+            'User Created',
+            testUser1ExcPass,
+          ),
+        ).subscribe((output: CreateUserPresenterOutput) => {
+          expect(out).toEqual(output);
+          expect(out).not.toContain('password');
+          done();
+        });
+        // console.log('Test-User-Service-createUser actual out', out);
+      },
+      error: (err) => {
+        console.error('Test failed with error', err);
+        done.fail('create user fail');
+      },
+    });
+  });
 
   afterAll(async () => {
     await connection
@@ -107,6 +126,12 @@ describe('UserService', () => {
       .delete()
       .from(UserEntity)
       .where('username = :username', { username: testUser.username })
+      .execute();
+    await connection
+      .createQueryBuilder(UserEntity, 'users')
+      .delete()
+      .from(UserEntity)
+      .where('username = :username', { username: testUser1.username })
       .execute();
     await connection.close();
   });
