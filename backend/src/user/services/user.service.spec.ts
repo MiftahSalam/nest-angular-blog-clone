@@ -117,20 +117,6 @@ describe('UserService', () => {
   });
 
   it('should be get error User already exist', (done: jest.DoneCallback) => {
-    service
-      .findUserByName('testUser.username')
-      .pipe()
-      .subscribe({
-        next: () => {
-          done.fail('User should not exist');
-        },
-        error: (err) => {
-          if (err instanceof NotFoundException) {
-            expect(err.message).toEqual('User not found');
-            done();
-          } else done.fail('Error is not NotFoundException');
-        },
-      });
     service.createUser(testUser1).subscribe({
       next: () => {
         done.fail('User should not created');
