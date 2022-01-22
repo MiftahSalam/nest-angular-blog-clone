@@ -4,14 +4,10 @@ import { Connection, Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { UserService } from './user.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { from } from 'rxjs';
 
 import ormconfig = require('../../config/ormconfig');
 import { HttpStatus, NotFoundException } from '@nestjs/common';
-import {
-  CreateUserPresenterImp,
-  CreateUserPresenterOutput,
-} from '../presenter/create-user.presenter';
+import { PresenterOutput } from 'src/core/presenter';
 
 describe('UserService', () => {
   let service: UserService;
@@ -96,21 +92,17 @@ describe('UserService', () => {
 
   it('should be create one user', (done: jest.DoneCallback) => {
     service.createUser(testUser1).subscribe({
-      next: (out: CreateUserPresenterOutput) => {
-        const presenter: CreateUserPresenterImp = new CreateUserPresenterImp();
+      next: (out: PresenterOutput) => {
         const testUser1ExcPass = testUser1;
         delete testUser1ExcPass.password;
-        from(
-          presenter.present(
-            HttpStatus.CREATED,
-            'User Created',
-            testUser1ExcPass,
-          ),
-        ).subscribe((output: CreateUserPresenterOutput) => {
-          expect(out).toEqual(output);
-          expect(out).not.toContain('password');
-          done();
-        });
+        const presenter: PresenterOutput = {
+          status: HttpStatus.CREATED,
+          message: 'User Created',
+          data: testUser1ExcPass,
+        };
+        expect(out).toEqual(presenter);
+        expect(out).not.toContain('password');
+        done();
         // console.log('Test-User-Service-createUser actual out', out);
       },
       error: (err) => {

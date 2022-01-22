@@ -4,10 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  CreateUserPresenterImp,
-  CreateUserPresenterOutput,
-} from '../presenter/create-user.presenter';
+import { PresenterOutput } from 'src/core/presenter';
 
 @Injectable()
 export class UserService {
@@ -16,9 +13,7 @@ export class UserService {
     private readonly userService: Repository<UserEntity>,
   ) {}
 
-  createUser(user: CreateUserDto): Observable<CreateUserPresenterOutput> {
-    // console.log('User-Service-createUser');
-
+  createUser(user: CreateUserDto): Observable<PresenterOutput> {
     return from(this.findUserByName(user.username)).pipe(
       catchError((err) => {
         // console.log(
@@ -29,7 +24,7 @@ export class UserService {
       }),
       switchMap((userExisting: UserEntity) => {
         // console.log('User-Service-createUser user', user);
-        const presenter: CreateUserPresenterImp = new CreateUserPresenterImp();
+        let presenter: PresenterOutput;
 
         if (!userExisting) {
           return from(this.userService.save(user)).pipe(
@@ -43,27 +38,31 @@ export class UserService {
             switchMap((userData: UserEntity) => {
               if (userData) {
                 delete userData.password;
-                return from(
-                  presenter.present(
-                    HttpStatus.CREATED,
-                    'User Created',
-                    userData,
-                  ),
-                );
-              } else
-                return from(
-                  presenter.present(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    'An error happened while create user',
-                    {},
-                  ),
-                );
+                presenter = {
+                  status: HttpStatus.CREATED,
+                  message: 'User Created',
+                  data: userData,
+                };
+              } else {
+                presenter = {
+                  status: HttpStatus.INTERNAL_SERVER_ERROR,
+                  message: 'An error happened while create user',
+                  data: {},
+                };
+              }
+
+              return of(presenter);
             }),
           );
-        } else
-          return from(
-            presenter.present(HttpStatus.BAD_REQUEST, 'User already exist', {}),
-          );
+        } else {
+          presenter = {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'User already exist',
+            data: {},
+          };
+
+          return of(presenter);
+        }
       }),
     );
   }
