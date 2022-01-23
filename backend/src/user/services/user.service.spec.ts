@@ -62,36 +62,33 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  // it('should be get one user async', async () => {
-  //   const user = await service.findUserByNameAsync('miftah-salam');
-  // });
-
   it('should be get one user', (done: jest.DoneCallback) => {
-    service.findUserByName(testUser.username).subscribe((user: UserEntity) => {
-      expect(user.username).toEqual(testUser.username);
-      expect(user.email).toEqual(testUser.email);
-      expect(user.fullname).toEqual(testUser.fullname);
-      expect(user.image_url).toEqual(testUser.image_url);
+    service
+      .findUserByName(testUser.username)
+      .subscribe((out: PresenterOutput) => {
+        expect(out.data.username).toEqual(testUser.username);
+        expect(out.data.email).toEqual(testUser.email);
+        expect(out.data.fullname).toEqual(testUser.fullname);
+        expect(out.data.image_url).toEqual(testUser.image_url);
+        expect(out.data).not.toHaveProperty('password');
+        expect(out.data).toHaveProperty('id');
 
-      done();
-    });
+        done();
+      });
   });
 
   it('should be throw error user not found', (done: jest.DoneCallback) => {
-    service
-      .findUserByName('testUser.username')
-      .pipe()
-      .subscribe({
-        next: () => {
-          done.fail('User should not exist');
-        },
-        error: (err) => {
-          if (err instanceof NotFoundException) {
-            expect(err.message).toEqual('User not found');
-            done();
-          } else done.fail('Error is not NotFoundException');
-        },
-      });
+    service.findUserByName('testUser.username').subscribe({
+      next: () => {
+        done.fail('User should not exist');
+      },
+      error: (err) => {
+        if (err instanceof NotFoundException) {
+          expect(err.message).toEqual('User not found');
+          done();
+        } else done.fail('Error is not NotFoundException');
+      },
+    });
   });
 
   it('should be create one user', (done: jest.DoneCallback) => {

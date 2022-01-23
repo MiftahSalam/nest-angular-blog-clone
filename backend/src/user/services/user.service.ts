@@ -20,7 +20,7 @@ export class UserService {
   ) {}
 
   createUser(user: CreateUserDto): Observable<PresenterOutput> {
-    return from(this.findUserByName(user.username)).pipe(
+    return from(this.findUser(user.username)).pipe(
       catchError((err) => {
         // console.log(
         //   'Caught exception while find user with exception message:',
@@ -29,7 +29,6 @@ export class UserService {
         return of(null);
       }),
       switchMap((userExisting: UserEntity) => {
-        // console.log('User-Service-createUser user', user);
         let presenter: PresenterOutput;
 
         if (!userExisting) {
@@ -62,8 +61,20 @@ export class UserService {
     );
   }
 
-  findUserByName(username: string): Observable<UserEntity> {
-    // console.log('User-Service-findUserByName username', username);
+  findUserByName(username: string): Observable<PresenterOutput> {
+    return this.findUser(username).pipe(
+      switchMap((user: UserEntity) => {
+        let presenter: PresenterOutput;
+        presenter = {
+          status: HttpStatus.OK,
+          message: 'User Found',
+          data: { ...user },
+        };
+        return of(presenter);
+      }),
+    );
+  }
+  private findUser(username: string): Observable<UserEntity> {
     return from(
       this.userService.findOne({ where: { username: username } }),
     ).pipe(
