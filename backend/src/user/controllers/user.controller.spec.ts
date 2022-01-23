@@ -1,4 +1,8 @@
-import { BadRequestException, HttpStatus } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { PresenterOutput } from 'src/core/presenter';
@@ -57,7 +61,21 @@ const mockUserService = {
       return of(output);
     } else throw new BadRequestException('User already exist');
   }),
-  findUserByName: jest.fn(),
+  findUserByName: jest.fn().mockImplementation((username: string) => {
+    let output: PresenterOutput;
+    let foundedUser = mockUserRepository.find(
+      (user) => user.username === username,
+    );
+    if (foundedUser) {
+      delete foundedUser.password;
+      output = {
+        status: HttpStatus.OK,
+        message: 'User Found',
+        data: foundedUser,
+      };
+      return of(output);
+    } else throw new NotFoundException('User not found exist');
+  }),
   findUserByNameAsync: jest.fn(),
 };
 const mockNewUser: CreateUserDto = {
@@ -82,6 +100,43 @@ describe('UserController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should be return http status 200 and proper presenter output', (done: jest.DoneCallback) => {
+    controller.findUser('test-user').subscribe({
+      next: (output: PresenterOutput) => {
+        let expectedData = mockUserRepository.find(
+          (user) => user.username === 'test-user',
+        );
+        delete expectedData.password;
+        const expectedOut: PresenterOutput = {
+          status: HttpStatus.OK,
+          message: 'User Found',
+          data: expectedData,
+        };
+
+        expect(output).toEqual(expectedOut);
+        done();
+      },
+      error: (err) => {
+        console.error(err);
+        done.fail('Failed. User should be found');
+      },
+    });
+  });
+
+  it('should be return throw not found exception', (done: jest.DoneCallback) => {
+    const findUser = () => {
+      controller.findUser('mockNewUskljkler').subscribe({
+        next: (output: PresenterOutput) => {
+          done.fail('Failed. User should not found');
+        },
+      });
+    };
+
+    expect(findUser).toThrowError('User not found');
+    expect(findUser).toThrowError(NotFoundException);
+    done();
   });
 
   it('should be return http status 201 and proper presenter output', (done: jest.DoneCallback) => {

@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UsePipes,
   ValidationPipe,
@@ -18,5 +20,10 @@ export class UserController {
   @UsePipes(new ValidationPipe())
   register(@Body() createUserDto: CreateUserDto): Observable<PresenterOutput> {
     return this.userService.createUser(createUserDto);
+  }
+
+  @Get(':username')
+  findUser(@Param('username') username: string): Observable<PresenterOutput> {
+    return this.userService.findUserByName(username);
   }
 }
