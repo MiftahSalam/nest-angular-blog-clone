@@ -10,22 +10,8 @@ import { prepareDbBeforeEachTest, cleanupDbAfterEachTest } from './db.prepare';
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
-  //   let testUser: CreateUserDto = {
-  //     username: 'test-user',
-  //     email: 'test@yahoo.com',
-  //     password: '123456',
-  //     fullname: 'Test User',
-  //     image_url: 'http://www.test.user',
-  //   };
-  //   let testUser1: CreateUserDto = {
-  //     username: 'test-user1',
-  //     email: 'test1@yahoo.com',
-  //     password: '123456',
-  //     fullname: 'Test User 1',
-  //     image_url: 'http://www.test.user1',
-  //   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -34,21 +20,7 @@ describe('UserController (e2e)', () => {
     await app.init();
 
     connection = moduleFixture.get(getConnectionToken());
-    prepareDbBeforeEachTest(connection);
-    // await connection
-    //   .createQueryBuilder(UserEntity, 'users')
-    //   .insert()
-    //   .into(UserEntity)
-    //   .values([
-    //     {
-    //       username: testUser.username,
-    //       email: testUser.email,
-    //       password: testUser.password,
-    //       fullname: testUser.fullname,
-    //       image_url: testUser.image_url,
-    //     },
-    //   ])
-    //   .execute();
+    await prepareDbBeforeEachTest(connection);
   });
 
   it('/ (GET)', () => {
@@ -58,20 +30,8 @@ describe('UserController (e2e)', () => {
       .expect('Angular-Nestjs Blog!');
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await cleanupDbAfterEachTest(connection);
-    // await connection
-    //   .createQueryBuilder(UserEntity, 'users')
-    //   .delete()
-    //   .from(UserEntity)
-    //   .where('username = :username', { username: testUser.username })
-    //   .execute();
-    // await connection
-    //   .createQueryBuilder(UserEntity, 'users')
-    //   .delete()
-    //   .from(UserEntity)
-    //   .where('username = :username', { username: testUser1.username })
-    //   .execute();
-    // await connection.close();
+    // console.log('user e2e afterAll');
   });
 });

@@ -1,35 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
-import { UserEntity } from '../entities/user.entity';
-import { UserService } from './user.service';
-import { CreateUserDto } from '../dtos/create-user.dto';
-
-import ormconfig = require('../../config/ormconfig');
 import {
   BadRequestException,
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
+
 import { PresenterOutput } from 'src/core/presenter';
+import { UserEntity } from '../entities/user.entity';
+import { UserService } from './user.service';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import ormconfig = require('../../config/ormconfig');
+
+import {
+  mockCreateUsers,
+  prepareDbBeforeEachTest,
+  cleanupDbAfterEachTest,
+} from '../../../test/api/user/db.prepare';
+
+jest.setTimeout(100000);
 
 describe('UserService', () => {
   let service: UserService;
   let connection: Connection;
-  let testUser: CreateUserDto = {
-    username: 'test-user',
-    email: 'test@yahoo.com',
-    password: '123456',
-    fullname: 'Test User',
-    image_url: 'http://www.test.user',
-  };
-  let testUser1: CreateUserDto = {
-    username: 'test-user1',
-    email: 'test1@yahoo.com',
-    password: '123456',
-    fullname: 'Test User 1',
-    image_url: 'http://www.test.user1',
-  };
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,20 +36,7 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
     connection = await module.get(getConnectionToken());
-    await connection
-      .createQueryBuilder(UserEntity, 'users')
-      .insert()
-      .into(UserEntity)
-      .values([
-        {
-          username: testUser.username,
-          email: testUser.email,
-          password: testUser.password,
-          fullname: testUser.fullname,
-          image_url: testUser.image_url,
-        },
-      ])
-      .execute();
+    await prepareDbBeforeEachTest(connection);
   });
 
   it('should be defined', () => {
@@ -64,12 +45,12 @@ describe('UserService', () => {
 
   it('should be get one user', (done: jest.DoneCallback) => {
     service
-      .findUserByName(testUser.username)
+      .findUserByName(mockCreateUsers[0].username)
       .subscribe((out: PresenterOutput) => {
-        expect(out.data.username).toEqual(testUser.username);
-        expect(out.data.email).toEqual(testUser.email);
-        expect(out.data.fullname).toEqual(testUser.fullname);
-        expect(out.data.image_url).toEqual(testUser.image_url);
+        expect(out.data.username).toEqual(mockCreateUsers[0].username);
+        expect(out.data.email).toEqual(mockCreateUsers[0].email);
+        expect(out.data.fullname).toEqual(mockCreateUsers[0].fullname);
+        expect(out.data.image_url).toEqual(mockCreateUsers[0].image_url);
         expect(out.data).not.toHaveProperty('password');
         expect(out.data).toHaveProperty('id');
 
@@ -92,9 +73,9 @@ describe('UserService', () => {
   });
 
   it('should be create one user', (done: jest.DoneCallback) => {
-    service.createUser(testUser1).subscribe({
+    service.createUser(mockCreateUsers[1]).subscribe({
       next: (out: PresenterOutput) => {
-        const testUser1ExcPass = testUser1;
+        const testUser1ExcPass = mockCreateUsers[1];
         delete testUser1ExcPass.password;
         const presenter: PresenterOutput = {
           status: HttpStatus.CREATED,
@@ -114,7 +95,7 @@ describe('UserService', () => {
   });
 
   it('should be get error User already exist', (done: jest.DoneCallback) => {
-    service.createUser(testUser1).subscribe({
+    service.createUser(mockCreateUsers[1]).subscribe({
       next: () => {
         done.fail('User should not created');
       },
@@ -128,18 +109,6 @@ describe('UserService', () => {
   });
 
   afterAll(async () => {
-    await connection
-      .createQueryBuilder(UserEntity, 'users')
-      .delete()
-      .from(UserEntity)
-      .where('username = :username', { username: testUser.username })
-      .execute();
-    await connection
-      .createQueryBuilder(UserEntity, 'users')
-      .delete()
-      .from(UserEntity)
-      .where('username = :username', { username: testUser1.username })
-      .execute();
-    await connection.close();
+    await cleanupDbAfterEachTest(connection);
   });
 });
