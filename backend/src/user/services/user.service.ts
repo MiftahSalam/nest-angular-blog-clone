@@ -19,6 +19,23 @@ export class UserService {
     private readonly userService: Repository<UserEntity>,
   ) {}
 
+  deleteUser(username: string): Observable<PresenterOutput> {
+    return from(this.userService.delete({ username: username })).pipe(
+      switchMap((result) => {
+        if (result.affected > 0) {
+          const out: PresenterOutput = {
+            status: HttpStatus.OK,
+            message: 'User deleted',
+            data: { username: username },
+          };
+          return of(out);
+        }
+
+        throw new BadRequestException('User not found');
+      }),
+    );
+  }
+
   createUser(user: CreateUserDto): Observable<PresenterOutput> {
     return from(this.findUser(user.username)).pipe(
       catchError((err) => {
@@ -32,7 +49,8 @@ export class UserService {
         let presenter: PresenterOutput;
 
         if (!userExisting) {
-          return from(this.userService.save(user)).pipe(
+          const newUser = this.userService.create(user);
+          return from(this.userService.save(newUser)).pipe(
             catchError((err) => {
               console.log(
                 'Caught exception while create user with exception message:',
@@ -42,11 +60,13 @@ export class UserService {
             }),
             switchMap((userData: UserEntity) => {
               if (userData) {
+                // console.log('create user userData', userData);
+
                 delete userData.password;
                 presenter = {
                   status: HttpStatus.CREATED,
                   message: 'User Created',
-                  data: userData,
+                  data: { ...userData },
                 };
               } else
                 throw new InternalServerErrorException(

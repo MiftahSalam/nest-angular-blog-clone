@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -25,5 +26,10 @@ export class UserController {
   @Get(':username')
   findUser(@Param('username') username: string): Observable<PresenterOutput> {
     return this.userService.findUserByName(username);
+  }
+
+  @Delete(':username')
+  deleteUser(@Param('username') username: string): Observable<PresenterOutput> {
+    return this.userService.deleteUser(username);
   }
 }
