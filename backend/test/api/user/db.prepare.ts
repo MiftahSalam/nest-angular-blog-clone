@@ -17,15 +17,26 @@ export const mockCreateUsers: CreateUserDto[] = [
     fullname: 'Test User 1',
     image_url: 'http://www.test.user1',
   },
+  {
+    username: 'test-delete',
+    email: 'test-delete@yahoo.com',
+    password: 'delete123',
+    fullname: 'Test User For Delete',
+    image_url: 'http://www.test.delete',
+  },
 ];
 
 export const prepareDbBeforeEachTest = async (connection: Connection) => {
-  await connection
-    .createQueryBuilder(UserEntity, 'users')
-    .insert()
-    .into(UserEntity)
-    .values([mockCreateUsers[0]])
-    .execute();
+  const repo = connection.getRepository(UserEntity);
+  const user = repo.create(mockCreateUsers[0]);
+  const user1 = repo.create(mockCreateUsers[2]);
+  await repo.save([user, user1]);
+  // await connection
+  //   .createQueryBuilder(UserEntity, 'users')
+  //   .insert()
+  //   .into(UserEntity)
+  //   .values([mockCreateUsers[0], mockCreateUsers[2]])
+  //   .execute();
 };
 
 export const cleanupDbAfterEachTest = async (connection: Connection) => {
