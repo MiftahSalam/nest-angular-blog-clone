@@ -10,7 +10,6 @@ import {
 import { PresenterOutput } from 'src/core/presenter';
 import { UserEntity } from '../entities/user.entity';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../dtos/create-user.dto';
 import ormconfig = require('../../config/ormconfig');
 
 import {
@@ -19,7 +18,7 @@ import {
   cleanupDbAfterEachTest,
 } from '../../../test/api/user/db.prepare';
 
-jest.setTimeout(100000);
+jest.setTimeout(60000);
 
 describe('UserService', () => {
   let service: UserService;
@@ -43,7 +42,7 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should be get one user', (done: jest.DoneCallback) => {
+  it('findUserByName -> should be get one user', (done: jest.DoneCallback) => {
     service
       .findUserByName(mockCreateUsers[0].username)
       .subscribe((out: PresenterOutput) => {
@@ -58,7 +57,7 @@ describe('UserService', () => {
       });
   });
 
-  it('should be throw error user not found', (done: jest.DoneCallback) => {
+  it('findUserByName -> should be throw error user not found', (done: jest.DoneCallback) => {
     service.findUserByName('testUser.username').subscribe({
       next: () => {
         done.fail('User should not exist');
@@ -72,20 +71,21 @@ describe('UserService', () => {
     });
   });
 
-  it('should be create one user', (done: jest.DoneCallback) => {
+  it('createUser -> should be create one user', (done: jest.DoneCallback) => {
     service.createUser(mockCreateUsers[1]).subscribe({
       next: (out: PresenterOutput) => {
         const testUser1ExcPass = mockCreateUsers[1];
         delete testUser1ExcPass.password;
-        const presenter: PresenterOutput = {
-          status: HttpStatus.CREATED,
-          message: 'User Created',
-          data: testUser1ExcPass,
-        };
-        expect(out).toEqual(presenter);
-        expect(out).not.toContain('password');
-        done();
+        const { createdAt, id, ...createdData } = out.data;
+
         // console.log('Test-User-Service-createUser actual out', out);
+        expect(out.status).toEqual(HttpStatus.CREATED);
+        expect(out.message).toEqual('User Created');
+        expect(createdData).toEqual(testUser1ExcPass);
+        expect(out.data).not.toContain('password');
+        expect(id).not.toEqual('');
+        expect(createdAt).not.toEqual('');
+        done();
       },
       error: (err) => {
         console.error('Test failed with error', err);
@@ -94,7 +94,7 @@ describe('UserService', () => {
     });
   });
 
-  it('should be get error User already exist', (done: jest.DoneCallback) => {
+  it('createUser -> should be get error User Already Exist', (done: jest.DoneCallback) => {
     service.createUser(mockCreateUsers[1]).subscribe({
       next: () => {
         done.fail('User should not created');
@@ -102,6 +102,38 @@ describe('UserService', () => {
       error: (err) => {
         if (err instanceof BadRequestException) {
           expect(err.message).toEqual('User already exist');
+          done();
+        } else done.fail('Error is not BadRequestException');
+      },
+    });
+  });
+
+  it('deleteUser -> should be delete one user', (done: jest.DoneCallback) => {
+    service.deleteUser(mockCreateUsers[2].username).subscribe({
+      next: (out: PresenterOutput) => {
+        const presenter: PresenterOutput = {
+          status: HttpStatus.OK,
+          message: 'User deleted',
+          data: { username: mockCreateUsers[2].username },
+        };
+        expect(out).toEqual(presenter);
+        done();
+      },
+      error: (err) => {
+        console.error('Test failed with error', err);
+        done.fail('delete user fail');
+      },
+    });
+  });
+
+  it('deleteUser -> should be throw BadRequestException and get error User not found', (done: jest.DoneCallback) => {
+    service.deleteUser('mockCreateUsers').subscribe({
+      next: () => {
+        done.fail('User should not deleted');
+      },
+      error: (err) => {
+        if (err instanceof BadRequestException) {
+          expect(err.message).toEqual('User not found');
           done();
         } else done.fail('Error is not BadRequestException');
       },
