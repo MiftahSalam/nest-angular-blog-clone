@@ -30,13 +30,8 @@ export const prepareDbBeforeEachTest = async (connection: Connection) => {
   const repo = connection.getRepository(UserEntity);
   const user = repo.create(mockCreateUsers[0]);
   const user1 = repo.create(mockCreateUsers[2]);
-  await repo.save([user, user1]);
-  // await connection
-  //   .createQueryBuilder(UserEntity, 'users')
-  //   .insert()
-  //   .into(UserEntity)
-  //   .values([mockCreateUsers[0], mockCreateUsers[2]])
-  //   .execute();
+  // await repo.save([user, user1]);
+  return repo.save([user, user1]);
 };
 
 export const cleanupDbAfterEachTest = async (connection: Connection) => {

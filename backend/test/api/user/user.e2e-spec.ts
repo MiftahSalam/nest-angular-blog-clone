@@ -5,8 +5,18 @@ import { AppModule } from '../../../src/app.module';
 import { Connection } from 'typeorm';
 import { getConnectionToken } from '@nestjs/typeorm';
 
-import { prepareDbBeforeEachTest, cleanupDbAfterEachTest } from './db.prepare';
+import {
+  prepareDbBeforeEachTest,
+  cleanupDbAfterEachTest,
+  mockCreateUsers,
+} from './db.prepare';
+import { UserEntity } from 'src/user/entities/user.entity';
 
+let mockUserRestProperty: {
+  id: string;
+  username: string;
+  createdAt: string;
+}[] = [];
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
@@ -20,18 +30,41 @@ describe('UserController (e2e)', () => {
     await app.init();
 
     connection = moduleFixture.get(getConnectionToken());
-    await prepareDbBeforeEachTest(connection);
+    const users = await prepareDbBeforeEachTest(connection);
+
+    users.forEach((user: UserEntity) => {
+      mockUserRestProperty.push({
+        id: user.id,
+        username: user.username,
+        createdAt: user.createdAt.toISOString(),
+      });
+    });
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Angular-Nestjs Blog!');
+  it('api/user/:username (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get(`/api/user/${mockCreateUsers[0].username}`)
+      .expect(200);
+
+    const respData = response.body;
+    const dataRest = mockUserRestProperty.find(
+      (user) => user.username === mockUserRestProperty[0].username,
+    );
+    const dataUser = { ...dataRest, ...mockCreateUsers[0] };
+    delete dataUser.password;
+    const expRespData = {
+      status: 200,
+      message: 'User Found',
+      data: dataUser,
+    };
+
+    expect(expRespData).toEqual(respData);
+    // console.log(respData);
+    // console.log(expRespData);
   });
 
   afterAll(async () => {
     await cleanupDbAfterEachTest(connection);
-    // console.log('user e2e afterAll');
+    // await app.close()
   });
 });
