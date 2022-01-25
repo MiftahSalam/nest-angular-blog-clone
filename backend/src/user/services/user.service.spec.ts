@@ -42,6 +42,23 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
+  it('findAll -> should be get all users', (done: jest.DoneCallback) => {
+    service.findAll().subscribe((out: PresenterOutput) => {
+      const data = out.data as Array<UserEntity>;
+      expect(out.data).toBeInstanceOf(Array);
+      expect(out.status).toEqual(HttpStatus.OK);
+      expect(out.message).toEqual('');
+      expect((out.data as Array<UserEntity>).length).toEqual(2);
+      data.forEach((user) => {
+        const findData = mockCreateUsers.find(
+          (userMock) => user.username === userMock.username,
+        );
+        expect(findData).not.toBeUndefined();
+      });
+      done();
+    });
+  });
+
   it('findUserByName -> should be get one user', (done: jest.DoneCallback) => {
     service
       .findUserByName(mockCreateUsers[0].username)

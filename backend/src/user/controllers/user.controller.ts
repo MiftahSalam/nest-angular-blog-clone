@@ -23,6 +23,11 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
+  @Get()
+  findAll(): Observable<PresenterOutput> {
+    return this.userService.findAll();
+  }
+
   @Get(':username')
   findUser(@Param('username') username: string): Observable<PresenterOutput> {
     return this.userService.findUserByName(username);

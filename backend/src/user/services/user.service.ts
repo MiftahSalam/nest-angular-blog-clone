@@ -81,6 +81,20 @@ export class UserService {
     );
   }
 
+  findAll(): Observable<PresenterOutput> {
+    return from(this.userService.find()).pipe(
+      switchMap((users) => {
+        let presenter: PresenterOutput;
+
+        presenter = {
+          status: HttpStatus.OK,
+          message: '',
+          data: users,
+        };
+        return of(presenter);
+      }),
+    );
+  }
   findUserByName(username: string): Observable<PresenterOutput> {
     return this.findUser(username).pipe(
       switchMap((user: UserEntity) => {
