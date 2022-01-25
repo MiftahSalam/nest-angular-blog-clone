@@ -15,12 +15,8 @@ export = [
       'dist/**/*.entity{.ts,.js}',
     ],
     synchronize: false,
-    logging: false,
-    migrations: [
-      join(__dirname, '..', 'migrations/*{.ts,.js}'),
-      //   'src/migrations/**/*{.ts,.js}',
-    ],
-    // migrations: ['src/migrations/**/*{.ts,.js}'],
+    logging: !!process.env.DATABASE_ENABLE_LOG,
+    migrations: [join(__dirname, '..', 'migrations/*{.ts,.js}')],
     cli: {
       entitiesDir: 'src',
       migrationsDir: 'src/migrations',
