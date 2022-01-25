@@ -8,7 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { PresenterOutput } from 'src/core/presenter';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserService } from '../services/user.service';
@@ -25,7 +25,13 @@ export class UserController {
 
   @Get()
   findAll(): Observable<PresenterOutput> {
-    return this.userService.findAll();
+    const presenter: PresenterOutput = {
+      status: 200,
+      message: '',
+      data: { test: 'test' },
+    };
+    return of(presenter);
+    // return this.userService.findAll();
   }
 
   @Get(':username')
