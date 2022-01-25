@@ -25,13 +25,7 @@ export class UserController {
 
   @Get()
   findAll(): Observable<PresenterOutput> {
-    const presenter: PresenterOutput = {
-      status: 200,
-      message: '',
-      data: { test: 'test' },
-    };
-    return of(presenter);
-    // return this.userService.findAll();
+    return this.userService.findAll();
   }
 
   @Get(':username')
