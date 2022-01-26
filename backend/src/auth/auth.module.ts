@@ -12,10 +12,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const jwtExpired = parseInt(`${process.env.JWT_EXPIRED_IN}`);
-console.log('jwtExpired', process.env.JWT_EXPIRED_IN);
-console.log('JWT_SECRET', process.env.JWT_SECRET);
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
