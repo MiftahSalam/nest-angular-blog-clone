@@ -4,9 +4,12 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { from, Observable, switchMap, of, catchError } from 'rxjs';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,11 +19,11 @@ import { PresenterOutput } from 'src/core/presenter';
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userService: Repository<UserEntity>,
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   deleteUser(username: string): Observable<PresenterOutput> {
-    return from(this.userService.delete({ username: username })).pipe(
+    return from(this.userRepository.delete({ username: username })).pipe(
       switchMap((result) => {
         if (result.affected > 0) {
           const out: PresenterOutput = {
@@ -49,8 +52,8 @@ export class UserService {
         let presenter: PresenterOutput;
 
         if (!userExisting) {
-          const newUser = this.userService.create(user);
-          return from(this.userService.save(newUser)).pipe(
+          const newUser = this.userRepository.create(user);
+          return from(this.userRepository.save(newUser)).pipe(
             catchError((err) => {
               console.log(
                 'Caught exception while create user with exception message:',
@@ -82,7 +85,7 @@ export class UserService {
   }
 
   findAll(): Observable<PresenterOutput> {
-    return from(this.userService.find()).pipe(
+    return from(this.userRepository.find()).pipe(
       switchMap((users) => {
         let presenter: PresenterOutput;
 
@@ -108,9 +111,44 @@ export class UserService {
       }),
     );
   }
+
+  async validateUser(username: string, password: string): Promise<any> {
+    const user = await this.findUserByNameWithPassword(username);
+    // console.log('validateUser user', user);
+    if (user) {
+      const same = await bcrypt.compare(password, user.password);
+      // console.log('validateUser same', same, password);
+      if (same) {
+        const { password, ...result } = { ...user };
+        // console.log('validateUser result', result);
+        return result;
+      } else throw new UnauthorizedException('Invalid credential');
+    }
+    throw new NotFoundException('User not found');
+  }
+
+  private async findUserByNameWithPassword(
+    username: string,
+  ): Promise<{ id: string; username: string; password: string } | null> {
+    const user: UserEntity = await this.userRepository.findOne({
+      select: ['password', 'id', 'username'],
+      where: { username: username },
+    });
+
+    // console.log('findUserByNameWithPassword user', user);
+
+    if (user) {
+      const { id, password, username } = { ...user };
+
+      return { id, password, username };
+    }
+
+    return null;
+  }
+
   private findUser(username: string): Observable<UserEntity> {
     return from(
-      this.userService.findOne({ where: { username: username } }),
+      this.userRepository.findOne({ where: { username: username } }),
     ).pipe(
       switchMap((user: UserEntity) => {
         if (!user) throw new NotFoundException('User not found');
@@ -122,7 +160,7 @@ export class UserService {
   async findUserByNameAsync(username: string): Promise<UserEntity> {
     console.log('User-Service-findUserByName username', username);
 
-    const user = await this.userService.findOne({
+    const user = await this.userRepository.findOne({
       where: { username: username },
     });
 

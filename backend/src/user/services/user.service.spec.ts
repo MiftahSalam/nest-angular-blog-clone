@@ -5,7 +5,9 @@ import {
   BadRequestException,
   HttpStatus,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 import { PresenterOutput } from 'src/core/presenter';
 import { UserEntity } from '../entities/user.entity';
@@ -17,6 +19,7 @@ import {
   prepareDbBeforeEachTest,
   cleanupDbAfterEachTest,
 } from '../../../test/api/user/db.prepare';
+import { from } from 'rxjs';
 
 jest.setTimeout(60000);
 
@@ -40,6 +43,31 @@ describe('UserService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('validateUser -> should get password', async () => {
+    const user = await service.validateUser(
+      mockCreateUsers[0].username,
+      mockCreateUsers[0].password,
+    );
+
+    expect(user).toBeTruthy();
+  });
+
+  it('validateUser -> should be throw error invalid credential', (done: jest.DoneCallback) => {
+    from(
+      service.validateUser(mockCreateUsers[0].username, 'testUser.username'),
+    ).subscribe({
+      next: () => {
+        done.fail('should get error invalid credential');
+      },
+      error: (err) => {
+        if (err instanceof UnauthorizedException) {
+          expect(err.message).toEqual('Invalid credential');
+          done();
+        } else done.fail('Error is not UnauthorizedException');
+      },
+    });
   });
 
   it('findAll -> should be get all users', (done: jest.DoneCallback) => {
