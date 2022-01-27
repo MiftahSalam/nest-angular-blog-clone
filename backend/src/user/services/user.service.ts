@@ -34,12 +34,13 @@ export class UserService {
           return of(out);
         }
 
-        throw new BadRequestException('User not found');
+        throw new NotFoundException('User not found');
       }),
     );
   }
 
   createUser(user: CreateUserDto): Observable<PresenterOutput> {
+    // console.log('createUser user', user);
     return from(this.findUser(user.username)).pipe(
       catchError((err) => {
         // console.log(
