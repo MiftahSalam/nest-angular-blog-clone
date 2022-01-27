@@ -24,8 +24,8 @@ export class AuthService {
     };
     // const token = this.jwtService.sign(payload);
 
-    // console.log('login payload', payload);
-    // console.log('login token', token);
+    console.log('login payload', payload);
+    console.log('login userResult', userResult);
 
     return {
       status: HttpStatus.OK,
