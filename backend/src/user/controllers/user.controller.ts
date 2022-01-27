@@ -12,7 +12,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
+import { Roles } from 'src/auth/decorators/role.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Role } from 'src/auth/roles.enum';
 import { PresenterOutput } from 'src/core/presenter';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserService } from '../services/user.service';
@@ -28,9 +31,10 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   findAll(@Req() req: any): Observable<PresenterOutput> {
-    // Logger.log('UserController-findAll user', req.user);
+    Logger.log('UserController-findAll user', req.user);
 
     return this.userService.findAll();
   }

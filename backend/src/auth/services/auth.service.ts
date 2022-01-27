@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { UserService } from '../../user/services/user.service';
+import { Role } from '../roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,12 @@ export class AuthService {
     // console.log('login JWT_SECRET', process.env.JWT_SECRET);
     // console.log('login JWT_EXPIRED_IN', process.env.JWT_EXPIRED_IN);
 
-    const payload = { username: userResult.username, sub: userResult.id };
+    const dummyUserRole = Role.USER;
+    const payload = {
+      username: userResult.username,
+      sub: userResult.id,
+      role: dummyUserRole,
+    };
     // const token = this.jwtService.sign(payload);
 
     // console.log('login payload', payload);
