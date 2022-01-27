@@ -177,16 +177,16 @@ describe('UserService', () => {
     });
   });
 
-  it('deleteUser -> should be throw BadRequestException and get error User not found', (done: jest.DoneCallback) => {
+  it('deleteUser -> should be throw NotFoundException and get error User not found', (done: jest.DoneCallback) => {
     service.deleteUser('mockCreateUsers').subscribe({
       next: () => {
         done.fail('User should not deleted');
       },
       error: (err) => {
-        if (err instanceof BadRequestException) {
+        if (err instanceof NotFoundException) {
           expect(err.message).toEqual('User not found');
           done();
-        } else done.fail('Error is not BadRequestException');
+        } else done.fail('Error is not NotFoundException');
       },
     });
   });
