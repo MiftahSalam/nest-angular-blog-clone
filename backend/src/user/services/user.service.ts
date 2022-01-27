@@ -14,6 +14,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PresenterOutput } from 'src/core/presenter';
+import { Role } from 'src/auth/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -115,13 +116,13 @@ export class UserService {
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.findUserByNameWithPassword(username);
-    // console.log('validateUser user', user);
+    console.log('validateUser user', user);
     if (user) {
       const same = await bcrypt.compare(password, user.password);
       // console.log('validateUser same', same, password);
       if (same) {
         const { password, ...result } = { ...user };
-        // console.log('validateUser result', result);
+        console.log('validateUser result', result);
         return result;
       } else throw new UnauthorizedException('Invalid credential');
     }
@@ -130,18 +131,23 @@ export class UserService {
 
   private async findUserByNameWithPassword(
     username: string,
-  ): Promise<{ id: string; username: string; password: string } | null> {
+  ): Promise<{
+    id: string;
+    username: string;
+    password: string;
+    role: Role;
+  } | null> {
     const user: UserEntity = await this.userRepository.findOne({
-      select: ['password', 'id', 'username'],
+      select: ['password', 'id', 'username', 'role'],
       where: { username: username },
     });
 
     // console.log('findUserByNameWithPassword user', user);
 
     if (user) {
-      const { id, password, username } = { ...user };
+      const { id, password, username, role } = { ...user };
 
-      return { id, password, username };
+      return { id, password, username, role };
     }
 
     return null;
