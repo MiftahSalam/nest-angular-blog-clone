@@ -16,14 +16,11 @@ export class AuthService {
       user.username,
       user.password,
     );
-    // console.log('login JWT_SECRET', process.env.JWT_SECRET);
-    // console.log('login JWT_EXPIRED_IN', process.env.JWT_EXPIRED_IN);
 
-    const dummyUserRole = Role.USER;
     const payload = {
       username: userResult.username,
       sub: userResult.id,
-      role: dummyUserRole,
+      role: userResult.role,
     };
     // const token = this.jwtService.sign(payload);
 
