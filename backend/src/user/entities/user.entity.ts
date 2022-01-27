@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Role } from '../../auth/roles.enum';
 
 @Entity('users')
 export class UserEntity {
@@ -43,6 +44,13 @@ export class UserEntity {
     nullable: false,
   })
   email: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;
