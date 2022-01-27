@@ -56,6 +56,62 @@ describe('AuthController (e2e)', () => {
     expect(token).toBeDefined();
   });
 
+  it('api/auth/login (POST) should return access_token', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        username: mockCreateUsers[0].username,
+        password: mockCreateUsers[0].password,
+      })
+      .expect(200);
+
+    expect(response.body.status).toEqual(200);
+    expect(response.body.message).toEqual('User logged');
+    const token = response.body.data.access_token;
+    expect(token).toBeDefined();
+  });
+
+  it('api/auth/login (POST) should get error user not found', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        username: 'mockCreateUsers[0].username',
+        password: mockCreateUsers[0].password,
+      })
+      .expect(404);
+
+    expect(response.body.status).toEqual(404);
+    expect(response.body.message).toEqual('User not found');
+    expect(response.body.data).toEqual({});
+  });
+
+  it('api/auth/login (POST) should get error unauthorized', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        username: mockCreateUsers[0].username,
+        password: 'mockCreateUsers[0].password',
+      })
+      .expect(401);
+
+    expect(response.body.status).toEqual(401);
+    expect(response.body.message).toEqual('Invalid credential');
+    expect(response.body.data).toEqual({});
+  });
+
+  it('api/auth/login (POST) should get error bad request', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({
+        password: mockCreateUsers[0].password,
+      })
+      .expect(400);
+
+    expect(response.body.status).toEqual(400);
+    expect(response.body.message).toEqual('Bad Request Exception');
+    expect(response.body.data).toEqual({});
+  });
+
   afterAll(async () => {
     await cleanupDbAfterEachTest(connection);
     // await app.close()
