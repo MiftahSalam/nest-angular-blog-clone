@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { Connection } from 'typeorm';
@@ -11,12 +11,17 @@ import {
   mockCreateUsers,
 } from './db.prepare';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { JwtAuthGuard } from '../../../src/auth/guards/jwt-auth.guard';
+import { Role } from '../../../src/auth/roles.enum';
+import { RoleGuard } from '../../../src/auth/guards/role.guard';
 
 let mockUserRestProperty: {
   id: string;
   username: string;
   createdAt: string;
+  role: Role;
 }[] = [];
+
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
@@ -24,7 +29,20 @@ describe('UserController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({
+        canActivate: (contex: ExecutionContext) => {
+          return true;
+        },
+      })
+      .overrideGuard(RoleGuard)
+      .useValue({
+        canActivate: (contex: ExecutionContext) => {
+          return true;
+        },
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -37,6 +55,7 @@ describe('UserController (e2e)', () => {
         id: user.id,
         username: user.username,
         createdAt: user.createdAt.toISOString(),
+        role: user.role,
       });
     });
   });

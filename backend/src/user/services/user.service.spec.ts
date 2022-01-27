@@ -7,7 +7,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 
 import { PresenterOutput } from 'src/core/presenter';
 import { UserEntity } from '../entities/user.entity';
@@ -21,7 +20,7 @@ import {
 } from '../../../test/api/user/db.prepare';
 import { from } from 'rxjs';
 
-jest.setTimeout(60000);
+jest.setTimeout(10000);
 
 describe('UserService', () => {
   let service: UserService;
@@ -73,14 +72,21 @@ describe('UserService', () => {
   it('findAll -> should be get all users', (done: jest.DoneCallback) => {
     service.findAll().subscribe((out: PresenterOutput) => {
       const data = out.data as Array<UserEntity>;
+      const filteredUsers = data.filter(
+        (user) =>
+          user.username === 'test-user' || user.username === 'test-user1',
+      );
       expect(out.data).toBeInstanceOf(Array);
       expect(out.status).toEqual(HttpStatus.OK);
       expect(out.message).toEqual('');
-      expect((out.data as Array<UserEntity>).length).toEqual(2);
-      data.forEach((user) => {
+      expect((out.data as Array<UserEntity>).length).toBeGreaterThanOrEqual(2);
+      // console.log('mockCreateUsers', mockCreateUsers);
+      filteredUsers.forEach((user) => {
         const findData = mockCreateUsers.find(
           (userMock) => user.username === userMock.username,
         );
+        // console.log('findData', findData);
+        // console.log('user', user);
         expect(findData).not.toBeUndefined();
       });
       done();
@@ -121,7 +127,7 @@ describe('UserService', () => {
       next: (out: PresenterOutput) => {
         const testUser1ExcPass = mockCreateUsers[1];
         delete testUser1ExcPass.password;
-        const { createdAt, id, ...createdData } = out.data;
+        const { createdAt, role, id, ...createdData } = out.data;
 
         // console.log('Test-User-Service-createUser actual out', out);
         expect(out.status).toEqual(HttpStatus.CREATED);

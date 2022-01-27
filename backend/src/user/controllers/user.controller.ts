@@ -12,10 +12,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
-import { Roles } from 'src/auth/decorators/role.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/auth/guards/role.guard';
-import { Role } from 'src/auth/roles.enum';
+import { Roles } from '../../auth/decorators/role.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RoleGuard } from '../../auth/guards/role.guard';
+import { Role } from '../../auth/roles.enum';
 import { PresenterOutput } from 'src/core/presenter';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserService } from '../services/user.service';
@@ -31,8 +31,8 @@ export class UserController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
   findAll(@Req() req: any): Observable<PresenterOutput> {
     Logger.log('UserController-findAll user', req.user);
 
@@ -40,13 +40,15 @@ export class UserController {
   }
 
   @Get(':username')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
   findUser(@Param('username') username: string): Observable<PresenterOutput> {
     return this.userService.findUserByName(username);
   }
 
   @Delete(':username')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
   deleteUser(@Param('username') username: string): Observable<PresenterOutput> {
     return this.userService.deleteUser(username);
   }

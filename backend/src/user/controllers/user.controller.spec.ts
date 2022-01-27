@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
+import { Role } from '../../auth/roles.enum';
 import { PresenterOutput } from 'src/core/presenter';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
@@ -20,6 +21,7 @@ let mockUserRepository: UserEntity[] = [
     image_url: 'string',
     email: 'test1@yahoo.com',
     createdAt: new Date(),
+    role: Role.USER,
     hashPassword: jest.fn(),
   },
   {
@@ -29,6 +31,7 @@ let mockUserRepository: UserEntity[] = [
     fullname: 'Test User',
     image_url: 'http://www.test.user',
     id: '678sdfs90',
+    role: Role.USER,
     createdAt: new Date(),
     hashPassword: jest.fn(),
   },
@@ -39,6 +42,7 @@ let mockUserRepository: UserEntity[] = [
     password: 'delete123',
     fullname: 'Test User For Delete',
     image_url: 'http://www.test.delete',
+    role: Role.USER,
     hashPassword: jest.fn(),
     id: '678sdfsss90',
   },
@@ -67,6 +71,7 @@ const mockUserService = {
       const newUser: UserEntity = {
         createdAt: new Date(),
         ...userDto,
+        role: Role.USER,
         id: '1212123sdfs456',
         hashPassword: jest.fn(),
       };
@@ -78,6 +83,7 @@ const mockUserService = {
           username: newUser.username,
           email: newUser.email,
           id: newUser.id,
+          role: Role.USER,
           fullname: newUser.fullname,
           image_url: newUser.image_url,
         },
