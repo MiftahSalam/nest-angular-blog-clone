@@ -1,16 +1,15 @@
-import { UserEntity } from '../../../src/user/entities/user.entity';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import slugify from 'slugify';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity('blogs')
 export class BlogEntity {

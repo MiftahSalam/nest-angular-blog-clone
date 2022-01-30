@@ -4,10 +4,10 @@ import { from, Observable, of, switchMap } from 'rxjs';
 import { Repository } from 'typeorm';
 import slugify from 'slugify';
 
-import { PresenterOutput } from 'src/core/presenter';
 import { CreateBlogDto } from '../dtos/CreateBlog.dto';
 import { BlogEntity } from '../entities/blog.entity';
-import { UserService } from '../../../src/user/services/user.service';
+import { UserService } from '../../user/services/user.service';
+import { PresenterOutput } from '../../core/presenter';
 
 @Injectable()
 export class BlogService {

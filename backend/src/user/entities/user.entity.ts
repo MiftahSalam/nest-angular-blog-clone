@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../auth/roles.enum';
-import { BlogEntity } from '../../../src/blog/entities/blog.entity';
+import { BlogEntity } from '../../blog/entities/blog.entity';
 
 @Entity('users')
 export class UserEntity {
