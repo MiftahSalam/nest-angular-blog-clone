@@ -3,10 +3,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../auth/roles.enum';
+import { BlogEntity } from 'src/blog/entities/blog.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -54,6 +56,9 @@ export class UserEntity {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => BlogEntity, (blog: BlogEntity) => blog.author)
+  blogs: BlogEntity;
 
   @BeforeInsert()
   async hashPassword() {
