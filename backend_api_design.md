@@ -104,7 +104,7 @@
 
 ## 4. User Register
 
-- Endpoint: /api/auth/register
+- Endpoint: /api/user/register
 - Method: POST
 - Headers: -
 - Request
@@ -131,7 +131,13 @@
     message: 'User Created'/'User already exist'/'Bad request',
     data:
     {
-
+        id: string;
+        username: string;
+        fullname: string;
+        image_url: string;
+        email: string;
+        role: Role;
+        createdAt: Date;
     }
 }
 ```
@@ -140,7 +146,7 @@
 
 - Endpoint: /api/auth/login
 - Method: POST
-- Headers: -
+- Headers: Authorization: Bearer token
 - Request
 
   - Parameter: -
@@ -162,12 +168,100 @@
     message: ''/'User does not exist'/'Bad request',
     data:
     {
-        user: {
-            username,
-            image_url,
-            email
-        },
-        token
+        access_token
+    }
+}
+```
+
+## 6. Find All User
+
+- Endpoint: /api/user
+- Method: GET
+- Headers: Authorization: Bearer token
+- Request
+
+  - Parameter: -
+  - Query: -
+  - Body:
+
+- Response:
+
+```
+{
+    status: Ok/Unauthorized/Forbidden,
+    message: 'OK'/'Not Authorized'/'Forbidden Resource',
+    data:
+    {
+        [
+            {
+                id: string;
+                username: string;
+                fullname: string;
+                image_url: string;
+                email: string;
+                role: Role;
+                createdAt: Date;
+            },
+            .
+            .
+            .
+        ]
+    }
+}
+```
+
+## 6. Find One User
+
+- Endpoint: /api/user/id
+- Method: GET
+- Headers: Authorization: Bearer token
+- Request
+
+  - Parameter: user id
+  - Query: -
+  - Body:
+
+- Response:
+
+```
+{
+    status: Ok/Not Found/Unauthorized/Forbidden,
+    message: 'OK'/'User not found'/'Not Authorized'/'Forbidden Resource',
+    data:
+    {
+        {
+            id: string;
+            username: string;
+            fullname: string;
+            image_url: string;
+            email: string;
+            role: Role;
+            createdAt: Date;
+        }
+    }
+}
+```
+
+## 7. Delete One User
+
+- Endpoint: /api/user/id
+- Method: DELETE
+- Headers: Authorization: Bearer token
+- Request
+
+  - Parameter: user id
+  - Query: -
+  - Body:
+
+- Response:
+
+```
+{
+    status: Ok/Not Found/Unauthorized/Forbidden
+    message: 'User deleted'/'User not found'/'Not Authorized'/'Forbidden Resource',
+    data:
+    {
+        username: string;
     }
 }
 ```
