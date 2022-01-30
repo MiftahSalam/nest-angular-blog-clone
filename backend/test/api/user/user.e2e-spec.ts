@@ -22,6 +22,8 @@ let mockUserRestProperty: {
   role: Role;
 }[] = [];
 
+jest.setTimeout(60000);
+
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
