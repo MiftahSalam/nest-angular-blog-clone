@@ -12,7 +12,7 @@ import { UserEntity } from '../entities/user.entity';
 import { UserService } from '../services/user.service';
 import { UserController } from './user.controller';
 
-let mockUserRepository: UserEntity[] = [
+let mockUserRepository: Partial<UserEntity>[] = [
   {
     id: '123sdfs456',
     username: 'test-user1',
@@ -68,7 +68,7 @@ const mockUserService = {
     if (
       !mockUserRepository.find((user) => user.username === userDto.username)
     ) {
-      const newUser: UserEntity = {
+      const newUser: Partial<UserEntity> = {
         createdAt: new Date(),
         ...userDto,
         role: Role.USER,
