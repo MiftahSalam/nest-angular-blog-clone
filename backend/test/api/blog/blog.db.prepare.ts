@@ -23,10 +23,15 @@ export const mockCreateBlogs: CreateBlogDto[] = [
     content: 'This blog is about bla...bla...',
     image_url: 'http://blog3.blogspot.image.com',
   },
+  {
+    title: 'Blog title 4',
+    description: 'This is blog article 4',
+    content: 'This blog is about bla...bla...',
+    image_url: 'http://blog4.blogspot.image.com',
+  },
 ];
 
 export const prepareDbBlogBeforeTest = async (connection: Connection) => {
-  await prepareDbBeforeEachTest(connection);
   const userRepo = connection.getRepository(UserEntity);
   const user1 = await userRepo.findOne({
     username: mockCreateUsers[0].username,
@@ -34,8 +39,9 @@ export const prepareDbBlogBeforeTest = async (connection: Connection) => {
   const blogRepo = connection.getRepository(BlogEntity);
   const blog = blogRepo.create({ ...mockCreateBlogs[0], author: user1 });
   const blog1 = blogRepo.create({ ...mockCreateBlogs[2], author: user1 });
+  const blog2 = blogRepo.create({ ...mockCreateBlogs[3], author: user1 });
   // await repo.save([user, user1]);
-  return blogRepo.save([blog, blog1]);
+  return blogRepo.save([blog, blog1, blog2]);
 };
 
 // export const cleanupDbBlogAfterTest = async (connection: Connection) => {
