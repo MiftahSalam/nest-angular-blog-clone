@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -24,7 +25,7 @@ export class BlogController {
   @Get('/')
   @UseGuards(JwtAuthGuard)
   findAllUserBlogs(@Req() req: any): Observable<PresenterOutput> {
-    console.log(req);
+    // console.log(req.user);
 
     return this.blogService.findAllBlogByUser(req.user.username);
   }
@@ -35,7 +36,7 @@ export class BlogController {
     @Param('slug') slug: string,
     @Req() req: any,
   ): Observable<PresenterOutput> {
-    console.log(req);
+    // console.log(req.user);
 
     return this.blogService.findBlogBySlug(slug, req.user.username);
   }
@@ -47,7 +48,7 @@ export class BlogController {
     @Body() createdBlogDto: CreateBlogDto,
     @Req() req: any,
   ): Observable<PresenterOutput> {
-    console.log(req);
+    // console.log(req.user);
 
     return this.blogService.createBlog(createdBlogDto, req.user.username);
   }
@@ -59,18 +60,18 @@ export class BlogController {
     @Body() updateBlogDto: UpdateBlogDto,
     @Req() req: any,
   ): Observable<PresenterOutput> {
-    console.log(req);
+    console.log(req.user);
 
     return this.blogService.updateBlog(updateBlogDto, req.user.username);
   }
 
-  @Put('/:id')
+  @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   deleteBlog(
     @Param('id') id: string,
     @Req() req: any,
   ): Observable<PresenterOutput> {
-    console.log(req);
+    console.log(req.user);
 
     return this.blogService.deleteBlog(id, req.user.username);
   }
