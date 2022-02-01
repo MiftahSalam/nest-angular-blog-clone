@@ -28,6 +28,7 @@ export class BlogService {
   ) {}
 
   deleteBlog(id: string, username: string): Observable<PresenterOutput> {
+    console.log('deleteBlog id', id);
     return from(
       this.blogRepository.findOne({
         where: { id: id },
@@ -35,7 +36,7 @@ export class BlogService {
       }),
     ).pipe(
       switchMap((blog) => {
-        // console.log('deleteBlog blog', blog);
+        console.log('deleteBlog blog', blog);
         if (!blog)
           throw new NotFoundException('Blog with current id not found');
 
@@ -89,12 +90,12 @@ export class BlogService {
               presenter = {
                 status: HttpStatus.OK,
                 message: 'Blog updated',
-                data: blog,
+                data: { id: blog.id },
               };
 
               return of(presenter);
             }
-            throw new InternalServerErrorException('Cannot delete blog');
+            throw new InternalServerErrorException('Cannot update blog');
           }),
         );
       }),

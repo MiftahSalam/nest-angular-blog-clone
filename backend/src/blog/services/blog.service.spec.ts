@@ -226,18 +226,15 @@ describe('BlogService', () => {
       .subscribe({
         next: (out: PresenterOutput) => {
           let expectedData = mockCreateBlogs[0];
-          let { author, createdAt, id, slug, updatedAt, ...restData } =
-            out.data;
+          const id = out.data.id;
           const expectedStatus = HttpStatus.OK;
           const expectedmessage = 'Blog updated';
 
           delete expectedData.content;
-          delete restData.content;
 
           expect(out.status).toEqual(expectedStatus);
           expect(out.message).toEqual(expectedmessage);
-          expect(restData).toEqual(expectedData);
-          expect(slug).toEqual(slugify(expectedData.title));
+          expect(id).toEqual(blogListId[0]);
 
           // console.log('Test createBlog expectedData', expectedData);
           // console.log('Test createBlog out', out);
@@ -330,7 +327,7 @@ describe('BlogService', () => {
           // console.error(err);
 
           if (err instanceof NotFoundException) {
-            expect(err.message).toEqual('Blog with current title not found');
+            expect(err.message).toEqual('Blog with current id not found');
             done();
           } else done.fail('Error is not NotFoundException');
         },
