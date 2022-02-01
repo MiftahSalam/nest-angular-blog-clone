@@ -37,7 +37,7 @@ export class BlogService {
       switchMap((blog) => {
         // console.log('deleteBlog blog', blog);
         if (!blog)
-          throw new NotFoundException('Blog with current title not found');
+          throw new NotFoundException('Blog with current id not found');
 
         const passAccess = this.isAuthorOrAdmin(username, blog.author);
         if (!passAccess)
