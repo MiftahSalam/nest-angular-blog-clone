@@ -112,6 +112,7 @@ export class BlogService {
           'blogs.description',
           'blogs.slug',
           'blogs.id',
+          'blogs.image_url',
           'users.fullname',
           'users.username',
         ])
