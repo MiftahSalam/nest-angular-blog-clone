@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:win": "(if exist ..\\backend\\frontend rmdir ..\\backend\\frontend /s /q) && ng build && move dist/frontend ..\\backend\\frontend",
+    "build:linux": "rm -rf ../backend/frontend && mkdir ../backend/frontend && ng build && mv dist/frontend/* ../backend/frontend"
   },
   "private": true,
   "dependencies": {
