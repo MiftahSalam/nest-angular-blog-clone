@@ -10,9 +10,12 @@ import { BlogService } from '../../services/blog/blog.service';
 })
 export class AllBlogsComponent implements OnInit {
   allBlogs: BlogModel[] = [];
+  blogApiUrl;
   private refresh$ = new BehaviorSubject<any>('');
 
-  constructor(private readonly blogService: BlogService) {}
+  constructor(private readonly blogService: BlogService) {
+    this.blogApiUrl = 'api/blog';
+  }
 
   ngOnInit(): void {
     this.blogService.getAllBlogs().subscribe((blogs) => {

@@ -1,1 +1,19 @@
-<div *ngFor="let blog of allBlogs">{{blog.title}}</div>
+<div class="blog">
+    <div class="container">
+        <ul *ngFor="let blog of allBlogs">
+            <div class="blog-image">
+                <a [routerLink]="[blogApiUrl, blog.slug]">
+                    <img height="200px" width="200px" src={{blog.image_url}} alt="blog image">
+                </a>
+            </div>
+            <a href={{blogApiUrl+blog.slug}}>
+                <h3>{{blog.title}}</h3>
+            </a>
+            <p>Author: {{blog.author?.fullname}}</p>
+            <div class="blog-content">
+                <p>{{blog.description}}</p>
+                <a class="btn btn-success" href={{blogApiUrl+blog.slug}}>Read more...</a>
+            </div>
+        </ul>
+    </div>
+</div>
