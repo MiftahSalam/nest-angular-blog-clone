@@ -13,7 +13,16 @@ async function bootstrap() {
   };
   console.log(WHITE_LIST);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          'img-src': ["'self'", 'https: data:'],
+        },
+      },
+    }),
+  );
   app.enableCors({
     origin: (origin, callback) => {
       if (WHITE_LIST.whitelist.indexOf[origin] !== -1) {
