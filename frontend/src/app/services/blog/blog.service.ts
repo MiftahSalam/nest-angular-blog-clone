@@ -33,4 +33,8 @@ export class BlogService {
       })
     );
   }
+
+  get blogApiUrl() {
+    return BLOG_URL;
+  }
 }
