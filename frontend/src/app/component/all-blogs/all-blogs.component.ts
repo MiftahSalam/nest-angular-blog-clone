@@ -20,7 +20,7 @@ export class AllBlogsComponent implements OnInit {
   ngOnInit(): void {
     this.blogService.getAllBlogs().subscribe((blogs) => {
       blogs.forEach((blog) => {
-        console.log(blog);
+        // console.log(blog);
         this.allBlogs.push(blog);
       });
     });
