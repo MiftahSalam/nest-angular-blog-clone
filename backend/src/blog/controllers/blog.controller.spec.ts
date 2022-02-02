@@ -7,6 +7,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import slugify from 'slugify';
+import { mockCreateBlogs } from '../../../test/api/blog/blog.db.prepare';
 
 import { Role } from '../../auth/roles.enum';
 import { PresenterOutput } from '../../core/presenter';
@@ -68,6 +69,16 @@ const mockCreateBlog = {
   image_url: 'http://blog4.blogspot.image.com',
 };
 const mockBlogService = {
+  findAllBlogs: jest.fn().mockImplementation(() => {
+    let presenter: PresenterOutput;
+    presenter = {
+      status: HttpStatus.OK,
+      message: '',
+      data: mockBlogRespository,
+    };
+
+    return of(presenter);
+  }),
   findAllBlogByUser: jest.fn().mockImplementation((username) => {
     const blogs = mockBlogRespository.filter(
       (blog) => blog.author.username === username,
@@ -237,6 +248,21 @@ describe('BlogController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('findAllBlogs -> should get all blogs from all user', (done: jest.DoneCallback) => {
+    controller.findAllBlogs().subscribe({
+      next: (out) => {
+        expect(out.status).toEqual(HttpStatus.OK);
+        expect(out.message).toEqual('');
+        expect(out.data).toBeInstanceOf(Array);
+        done();
+      },
+      error: (err) => {
+        console.error(err);
+        done.fail('Failed. Blogs should be found');
+      },
+    });
   });
 
   it('findAllUserBlogs -> should get all blogs from current logged user', (done: jest.DoneCallback) => {

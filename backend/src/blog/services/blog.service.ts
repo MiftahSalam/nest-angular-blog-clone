@@ -36,7 +36,7 @@ export class BlogService {
       }),
     ).pipe(
       switchMap((blog) => {
-        console.log('deleteBlog blog', blog);
+        // console.log('deleteBlog blog', blog);
         if (!blog)
           throw new NotFoundException('Blog with current id not found');
 
@@ -98,6 +98,30 @@ export class BlogService {
             throw new InternalServerErrorException('Cannot update blog');
           }),
         );
+      }),
+    );
+  }
+
+  findAllBlogs(): Observable<PresenterOutput> {
+    console.log('findAllBlogs blogs');
+    return from(
+      this.blogRepository
+        .createQueryBuilder('blogs')
+        .select(['blogs.title', 'blogs.description', 'users.fullname'])
+        .innerJoin('blogs.author', 'users')
+        .getMany(),
+    ).pipe(
+      switchMap((blogs) => {
+        console.log('findAllBlogs blogs', blogs);
+
+        let presenter: PresenterOutput;
+        presenter = {
+          status: HttpStatus.OK,
+          message: '',
+          data: blogs,
+        };
+
+        return of(presenter);
       }),
     );
   }

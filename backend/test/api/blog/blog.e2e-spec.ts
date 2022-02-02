@@ -47,6 +47,15 @@ describe('BlogController (e2e)', () => {
     blogs = await prepareDbBlogBeforeTest(connection);
   });
 
+  it('api/blog/allblogs (GET) should get all blogs from all user', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/blog/allblogs')
+      .expect(HttpStatus.OK);
+
+    expect(response.body.message).toEqual('');
+    expect(response.body.data).toBeInstanceOf(Array);
+  });
+
   it('api/blog (GET) should get all blogs from current logged user', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/blog')

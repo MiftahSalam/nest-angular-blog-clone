@@ -22,6 +22,11 @@ import { BlogService } from '../services/blog.service';
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
+  @Get('/allblogs')
+  findAllBlogs(): Observable<PresenterOutput> {
+    return this.blogService.findAllBlogs();
+  }
+
   @Get('/')
   @UseGuards(JwtAuthGuard)
   findAllUserBlogs(@Req() req: any): Observable<PresenterOutput> {

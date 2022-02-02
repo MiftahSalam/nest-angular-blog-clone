@@ -64,6 +64,23 @@ describe('BlogService', () => {
     expect(service).toBeDefined();
   });
 
+  it('findAllBlog -> should get blogs of all author', (done: jest.DoneCallback) => {
+    service.findAllBlogs().subscribe({
+      next: (out: PresenterOutput) => {
+        // console.log(out);
+
+        expect(out.data).toBeInstanceOf(Array);
+        expect(out.status).toEqual(HttpStatus.OK);
+        expect(out.message).toEqual('');
+
+        done();
+      },
+      error: (err) => {
+        done.fail('should get blogs');
+      },
+    });
+  });
+
   it('findAllBlogByUser -> should get blogs of related author', (done: jest.DoneCallback) => {
     service.findAllBlogByUser(mockCreateUsers[0].username).subscribe({
       next: (out: PresenterOutput) => {
