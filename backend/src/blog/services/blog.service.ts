@@ -107,12 +107,19 @@ export class BlogService {
     return from(
       this.blogRepository
         .createQueryBuilder('blogs')
-        .select(['blogs.title', 'blogs.description', 'users.fullname'])
+        .select([
+          'blogs.title',
+          'blogs.description',
+          'blogs.slug',
+          'blogs.id',
+          'users.fullname',
+          'users.username',
+        ])
         .innerJoin('blogs.author', 'users')
         .getMany(),
     ).pipe(
       switchMap((blogs) => {
-        console.log('findAllBlogs blogs', blogs);
+        // console.log('findAllBlogs blogs', blogs);
 
         let presenter: PresenterOutput;
         presenter = {
