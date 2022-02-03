@@ -15,16 +15,16 @@ async function bootstrap() {
 
   app.use(
     helmet(),
-    /*
-      {
+
+    {
       contentSecurityPolicy: {
         useDefaults: true,
-        directives: {
-          'img-src': ["'self'", 'https: data:'],
-        },
+        // directives: {
+        //   'img-src': ["'self'", 'https: data:'],
+        // },
       },
-    }
-    */
+    },
+    /**/
   );
   app.enableCors({
     origin: (origin, callback) => {
