@@ -20,6 +20,7 @@ async function bootstrap() {
         contentSecurityPolicy: {
           useDefaults: false,
           directives: {
+            'default-src': ["'self'", 'pbs.twimg.com'],
             'img-src': ["'self'", 'pbs.twimg.com'],
           },
         },
