@@ -18,10 +18,9 @@ async function bootstrap() {
       {
         //debugging CSP cannot load image
         contentSecurityPolicy: {
-          useDefaults: false,
+          useDefaults: true,
           directives: {
-            'default-src': ["'self'", 'pbs.twimg.com'],
-            'img-src': ["'self'", 'pbs.twimg.com'],
+\            'img-src': ["'self'", 'https: data:'],
           },
         },
       },
