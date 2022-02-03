@@ -14,18 +14,18 @@ async function bootstrap() {
   console.log(WHITE_LIST);
 
   app.use(
-    helmet(
+    helmet(),
+    /*
       {
         //debugging CSP cannot load image
         contentSecurityPolicy: {
           useDefaults: true,
           directives: {
-\            'img-src': ["'self'", 'https: data:'],
+            'img-src': ["'self'", 'https: data:'],
           },
         },
       },
-      /**/
-    ),
+      */
   );
   app.enableCors({
     origin: (origin, callback) => {
