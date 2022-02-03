@@ -17,14 +17,12 @@ async function bootstrap() {
     helmet(
       {
         //debugging CSP cannot load image
-        contentSecurityPolicy: false,
-        /*{
+        contentSecurityPolicy: {
           useDefaults: true,
           directives: {
-            'img-src': ['*'], 
+            'img-src': ["'self'", 'pbs.twimg.com'],
           },
         },
-        */
       },
       /**/
     ),
