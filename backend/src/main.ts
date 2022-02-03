@@ -19,7 +19,7 @@ async function bootstrap() {
         contentSecurityPolicy: {
           useDefaults: true,
           directives: {
-            'img-src': ['*', 'https: data:'], //debugging CSP cannot load image
+            'img-src': ['*'], //debugging CSP cannot load image
           },
         },
       },
