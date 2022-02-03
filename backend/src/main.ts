@@ -16,12 +16,15 @@ async function bootstrap() {
   app.use(
     helmet(
       {
-        contentSecurityPolicy: {
+        //debugging CSP cannot load image
+        contentSecurityPolicy: false,
+        /*{
           useDefaults: true,
           directives: {
-            'img-src': ['*'], //debugging CSP cannot load image
+            'img-src': ['*'], 
           },
         },
+        */
       },
       /**/
     ),
